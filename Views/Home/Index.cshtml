@@ -47,8 +47,6 @@ else
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            const apiBaseUrl = "https://master--stunning-bunny-cc73b2.netlify.app/api";
-
             $('#placeOrder').click(function () {
                 var selectedItems = [];
                 $('.item-checkbox:checked').each(function () {
@@ -56,19 +54,19 @@ else
                 });
 
                 $.ajax({
-                    url: `${apiBaseUrl}/Order/placeorder`,
+                    url: '@Url.Action("PlaceOrder", "Home")',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(selectedItems),
                     success: function (result) {
                         var output = '<h4>This order has the following packages:</h4>';
-                        result.forEach(function (pkg, index) {
+                        result.forEach(function (package, index) {
                             output += '<div class="card mb-2"><div class="card-body">';
                             output += '<h5>Package ' + (index + 1) + '</h5>';
-                            output += '<p>Items: ' + pkg.items.map(i => i.name).join(', ') + '</p>';
-                            output += '<p>Total weight: ' + pkg.totalWeight + ' g</p>';
-                            output += '<p>Total price: $' + pkg.totalPrice + '</p>';
-                            output += '<p>Courier price: $' + pkg.courierPrice + '</p>';
+                            output += '<p>Items: ' + package.items.map(i => i.name).join(', ') + '</p>';
+                            output += '<p>Total weight: ' + package.totalWeight + ' g</p>';
+                            output += '<p>Total price: $' + package.totalPrice + '</p>';
+                            output += '<p>Courier price: $' + package.courierPrice + '</p>';
                             output += '</div></div>';
                         });
                         $('#orderResult').html(output);
