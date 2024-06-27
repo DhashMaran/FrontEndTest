@@ -1,0 +1,86 @@
+﻿@model List<FrontEndTest.Models.Item>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Select items and place an order</p>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <form id="orderForm">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><input type="checkbox" class="item-checkbox" value="@item.Id" /></td>
+                        <td>@item.Name</td>
+                        <td>@item.Price</td>
+                        <td>@item.Weight</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button type="button" id="placeOrder" class="btn btn-primary">Place Order</button>
+        <button type="button" id="resetOrder" class="btn btn-secondary">Reset</button>
+    </form>
+    <div id="orderResult"></div>
+}
+else
+{
+    <p>No items available.</p>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#placeOrder').click(function () {
+                var selectedItems = [];
+                $('.item-checkbox:checked').each(function () {
+                    selectedItems.push(parseInt($(this).val()));
+                });
+
+                $.ajax({
+                    url: '@Url.Action("PlaceOrder", "Home")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(selectedItems),
+                    success: function (result) {
+                        var output = '<h4>This order has the following packages:</h4>';
+                        result.forEach(function (package, index) {
+                            output += '<div class="card mb-2"><div class="card-body">';
+                            output += '<h5>Package ' + (index + 1) + '</h5>';
+                            output += '<p>Items: ' + package.items.map(i => i.name).join(', ') + '</p>';
+                            output += '<p>Total weight: ' + package.totalWeight + ' g</p>';
+                            output += '<p>Total price: $' + package.totalPrice + '</p>';
+                            output += '<p>Courier price: $' + package.courierPrice + '</p>';
+                            output += '</div></div>';
+                        });
+                        $('#orderResult').html(output);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $('#resetOrder').click(function () {
+                $('.item-checkbox').prop('checked', false);
+                $('#orderResult').html('');
+            });
+        });
+    </script>
+}
